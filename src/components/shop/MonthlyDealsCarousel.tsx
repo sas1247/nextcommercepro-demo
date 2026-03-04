@@ -15,7 +15,7 @@ type Item = {
   image: string | null;
 };
 
-export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
+export default function MonthlyDealsCarousel({ items = [] }: { items?: Item[] }) {
   const pageSize = 5;
   const cart = useCart();
 
@@ -24,6 +24,8 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
     for (let i = 0; i < items.length; i += pageSize) out.push(items.slice(i, i + pageSize));
     return out.slice(0, 3); // 15 products = 3 pages
   }, [items]);
+
+  if (!items?.length) return null;
 
   const [index, setIndex] = useState(0);
 
@@ -37,8 +39,12 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
     <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
       <div className="flex items-end justify-between gap-3 mb-4 md:mb-5">
         <div className="min-w-0">
-          <h2 className="text-lg md:text-2xl font-semibold text-black leading-tight">Monthly deals</h2>
-          <p className="text-xs md:text-sm text-neutral-600 mt-1">Top picks, now at special prices</p>
+          <h2 className="text-lg md:text-2xl font-semibold text-black leading-tight">
+            Monthly deals
+          </h2>
+          <p className="text-xs md:text-sm text-neutral-600 mt-1">
+            Top picks, now at special prices
+          </p>
         </div>
 
         <Link
@@ -77,13 +83,19 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
 
                 <div className="p-2.5">
                   <a href={`/produs/${p.slug}`} className="block">
-                    <h3 className="text-xs font-medium text-black line-clamp-2">{p.title}</h3>
+                    <h3 className="text-xs font-medium text-black line-clamp-2">
+                      {p.title}
+                    </h3>
                   </a>
 
                   <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-xs font-semibold text-black">{formatMoney(p.price)}</span>
+                    <span className="text-xs font-semibold text-black">
+                      {formatMoney(p.price)}
+                    </span>
                     {p.priceOld ? (
-                      <span className="text-[11px] text-neutral-500 line-through">{formatMoney(p.priceOld)}</span>
+                      <span className="text-[11px] text-neutral-500 line-through">
+                        {formatMoney(p.priceOld)}
+                      </span>
                     ) : null}
                   </div>
 
@@ -132,7 +144,10 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
               <div key={pi} className="w-full shrink-0 p-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   {page.map((p) => (
-                    <article key={p.id} className="group rounded-2xl border border-black/10 bg-white overflow-hidden">
+                    <article
+                      key={p.id}
+                      className="group rounded-2xl border border-black/10 bg-white overflow-hidden"
+                    >
                       <a href={`/produs/${p.slug}`} className="block relative">
                         <div className="aspect-[4/5] overflow-hidden bg-neutral-50">
                           <img
@@ -145,13 +160,19 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
 
                       <div className="p-3">
                         <a href={`/produs/${p.slug}`} className="block">
-                          <h3 className="text-sm font-medium text-black line-clamp-2">{p.title}</h3>
+                          <h3 className="text-sm font-medium text-black line-clamp-2">
+                            {p.title}
+                          </h3>
                         </a>
 
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-sm font-semibold text-black">{formatMoney(p.price)}</span>
+                          <span className="text-sm font-semibold text-black">
+                            {formatMoney(p.price)}
+                          </span>
                           {p.priceOld ? (
-                            <span className="text-xs text-neutral-500 line-through">{formatMoney(p.priceOld)}</span>
+                            <span className="text-xs text-neutral-500 line-through">
+                              {formatMoney(p.priceOld)}
+                            </span>
                           ) : null}
                         </div>
 
@@ -195,7 +216,9 @@ export default function MonthlyDealsCarousel({ items }: { items: Item[] }) {
               <button
                 key={i}
                 onClick={() => setIndex(i)}
-                className={`h-2.5 w-2.5 rounded-full transition ${index === i ? "bg-black" : "bg-black/20"}`}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  index === i ? "bg-black" : "bg-black/20"
+                }`}
                 aria-label={`Page ${i + 1}`}
               />
             ))}
