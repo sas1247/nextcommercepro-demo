@@ -3,9 +3,20 @@ import Stripe from "stripe";
 import { prisma } from "../../../../lib/prisma";
 import { getAuthUser } from "../../../../lib/auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
 
 export async function POST(req: Request) {
+  const key = process.env.STRIPE_SECRET_KEY;
+
+  if (!key) {
+    return NextResponse.json(
+      { message: "Stripe is not configured (missing STRIPE_SECRET_KEY)." },
+      { status: 500 }
+    );
+  }
+
+  const stripe = new Stripe(key);
+
   try {
     const body = await req.json();
     const user = await getAuthUser().catch(() => null);
