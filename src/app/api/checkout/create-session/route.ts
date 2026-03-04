@@ -3,8 +3,6 @@ import Stripe from "stripe";
 import { prisma } from "../../../../lib/prisma";
 import { getAuthUser } from "../../../../lib/auth";
 
-
-
 export async function POST(req: Request) {
   const key = process.env.STRIPE_SECRET_KEY;
 
@@ -31,7 +29,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Cart gol." }, { status: 400 });
     }
 
-    // NOTE: translated template comment.
     if (!shippingAddress?.county || !shippingAddress?.city || !shippingAddress?.address) {
       return NextResponse.json({ message: "Shipping address is incomplete." }, { status: 400 });
     }
@@ -47,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Produs invalid." }, { status: 400 });
     }
 
-    // 2) subtotal real + verificare stoc
+    // 2) subtotal real
     let subtotal = 0;
     for (const item of items) {
       const product = products.find((p) => p.id === item.id);
@@ -63,7 +60,6 @@ export async function POST(req: Request) {
       subtotal += product.price * item.qty;
     }
 
-    // NOTE: translated template comment.
     let discount = 0;
     let couponCode: string | null = null;
     let couponAmount: number | null = null;
@@ -92,17 +88,16 @@ export async function POST(req: Request) {
     const total = subtotalAfterDiscount + shipping;
 
     const last = await prisma.order.findFirst({
-  orderBy: { orderNo: "desc" },
-  select: { orderNo: true },
-});
-const nextOrderNo = (last?.orderNo ?? 0) + 1;
+      orderBy: { orderNo: "desc" },
+      select: { orderNo: true },
+    });
+    const nextOrderNo = (last?.orderNo ?? 0) + 1;
 
-    // NOTE: translated template comment.
     const order = await prisma.order.create({
       data: {
         orderNo: nextOrderNo,
         status: "PENDING",
-        userId: user?.id ?? null,   // 👈 AICI (sub status e perfect)
+        userId: user?.id ?? null,
         personType,
         paymentMethod: "CARD",
 
@@ -151,9 +146,11 @@ const nextOrderNo = (last?.orderNo ?? 0) + 1;
       include: { items: true },
     });
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-    // NOTE: translated template comment.
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = order.items.map((it) => ({
       quantity: it.qty,
       price_data: {
@@ -162,7 +159,6 @@ const nextOrderNo = (last?.orderNo ?? 0) + 1;
         product_data: {
           name: it.title,
           metadata: { sku: it.sku ?? "", productId: it.productId },
-          // NU trimitem images aici (mai ales pe localhost)
         },
       },
     }));
@@ -178,7 +174,6 @@ const nextOrderNo = (last?.orderNo ?? 0) + 1;
       });
     }
 
-    // NOTE: translated template comment.
     let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined = undefined;
 
     if (discount > 0) {
@@ -217,12 +212,7 @@ const nextOrderNo = (last?.orderNo ?? 0) + 1;
   } catch (err: any) {
     console.error("CREATE SESSION ERROR:", err);
 
-    // NOTE: translated template comment.
-    const msg =
-      err?.raw?.message ||
-      err?.message ||
-      "Eroare server.";
-
+    const msg = err?.raw?.message || err?.message || "Error server.";
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 }

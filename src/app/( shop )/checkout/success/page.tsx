@@ -1,28 +1,23 @@
-"use client";
-
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
 
-export default function SuccessPage() {
-  const sp = useSearchParams();
+type Props = {
+  searchParams: {
+    orderNo?: string;
+    order?: string;
+  };
+};
 
+export default function SuccessPage({ searchParams }: Props) {
   // nou: orderNo
-  const orderNo = sp.get("orderNo");
+  const orderNo = searchParams?.orderNo;
 
   // vechi: order id (fallback)
-  const orderId = sp.get("order");
+  const orderId = searchParams?.order;
 
-  const prettyOrderNo = useMemo(() => {
-    if (!orderNo) return null;
-    // NOTE: translated template comment.
-    return `ASTA${orderNo}`;
-  }, [orderNo]);
+  const prettyOrderNo = orderNo ? `ASTA${orderNo}` : null;
 
-  const shortId = useMemo(() => {
-    if (!orderId) return null;
-    return orderId.length > 10 ? `${orderId.slice(0, 6)}...${orderId.slice(-4)}` : orderId;
-  }, [orderId]);
+  const shortId =
+    orderId && orderId.length > 10 ? `${orderId.slice(0, 6)}...${orderId.slice(-4)}` : orderId ?? null;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -36,7 +31,7 @@ export default function SuccessPage() {
               {" "}
               Order number: <span className="font-semibold text-black">{prettyOrderNo}</span>
             </>
-          ) : orderId ? (
+          ) : shortId ? (
             <>
               {" "}
               Order number: <span className="font-semibold text-black">{shortId}</span>
