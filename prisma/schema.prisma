@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id        String  @id @default(cuid())
+  title     String
+  slug      String  @unique
+  shortDesc String?
+  description String?
+  sku       String  @unique
+
+  // cent (21999 = 219.99 cent)
+  price    Int
+  priceOld Int?
+  stock    Int     @default(0)
+  inStock  Boolean @default(true)
+
+  isFeaturedDiscounts Boolean @default(false)
+  isFeaturedBest      Boolean @default(false)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  image     String? // we also keep the “main image” simple (optional)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // -------------------------
+  
+// FILTERS (for category pages)
+  // -------------------------
+
+  // Product filters example
+  persons   Int? // 1 / 2 persoane
+  pieces    Int? // 3 / 4 / 6 / 8 parts
+  sheetType String? // "elastic" | "without"
+  modelType String? // "3d" | "printed" | "striped" | "satin" | "plain"
+  size      String? // "140x200" | "200x230" etc.
+
+  // Product filters example
+  places Int? // 1 / 2 / 3 / 4 locuri
+
+  // ✅ ADDED (without changing anything else)
+  orderItems OrderItem[]
+  
+// ✅ for wishlist / favorites
+  favorites  Favorite[]
+}
+
+model NewsletterSubscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  voucherCode String?
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  amount      Int // cents: 2000 = 20 USD
+  minSubtotal Int // cents: 30000 = 300 USD
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  usageLimit  Int       @default(1)
+  usedCount   Int       @default(0)
+}
+
+//
+
+// ✅ ADDED TO THE END (we don't touch anything existing)
+//
+
+model Order {
+  id String @id @default(cuid())
+
+  orderNo Int @unique
+
+
+// simple statuses (we extend them as needed)
+  status String @default("NEW")
+
+  // PF / PJ
+  personType String // "PF" | "PJ"
+
+// customer data (PF)
+  pfName  String?
+  pfPhone String?
+  pfEmail String?
+
+// customer data (company)
+  pjCompany String?
+  pjCui     String?
+  pjRegCom  String?
+  pjContact String?
+  pjPhone   String?
+  pjEmail   String?
+
+// delivery address
+  county  String
+  city    String
+  address String
+  zip     String?
+
+// observations
+  notes String?
+
+// payment
+  paymentMethod String // "COD" | "CARD"
+  currency      String @default("USD")
+
+
+// amounts in money (cents)
+  subtotal Int
+  discount Int @default(0)
+  shipping Int @default(0)
+  total    Int
+
+// coupon applied
+  couponCode        String?
+  couponAmount      Int?
+  couponMinSubtotal Int?
+
+// Stripe (only for CARD)
+  stripeSessionId       String?
+  stripePaymentIntentId String?
+
+  // delivery
+  carrier     String? // ex: "GLS"
+  awb         String?
+  trackingUrl String?
+
+// ✅ OPTIONAL LINK TO USER (for "My Account" -> My Orders)
+// Does not affect existing orders; if null, the order remains PF/PJ as before.
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  title String
+  slug  String
+  sku   String?
+  image String?
+
+  price Int // price/piece in cents at the time of order
+  qty   Int
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+//
+// ✅ NEW TEMPLATES FOR ACCOUNT / AUTH / FAVORITES / RESET PASSWORD / GOOGLE
+//
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String? // null dacă e user doar Google
+  firstName    String?
+  lastName     String?
+  phone        String?
+
+role Role @default(USER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses      Address[]
+  favorites      Favorite[]
+  orders         Order[]
+  resetTokens    PasswordResetToken[]
+  oauth          OAuthAccount[]
+  billingProfile BillingProfile?
+}
+
+model Address {
+  id        String      @id @default(cuid())
+  userId    String
+  type      AddressType
+  isDefault Boolean     @default(false)
+
+  // PJ (optional)
+  company String?
+  cui     String?
+  regCom  String?
+
+  address1 String
+  address2 String?
+  city     String
+  county   String
+  zip      String?
+  country  String  @default("RO")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, type])
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+}
+
+model Favorite {
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([userId, productId])
+  @@index([productId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model OAuthAccount {
+  id         String   @id @default(cuid())
+  userId     String
+  provider   String // "google"
+  providerId String // sub din Google
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+model BillingProfile {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  personType String // "PF" | "PJ"
+
+  // PF
+  pfName  String?
+  pfPhone String?
+  pfEmail String?
+
+  // PJ
+  pjCompany String?
+  pjCui     String?
+  pjRegCom  String?
+  pjContact String?
+  pjPhone   String?
+  pjEmail   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
