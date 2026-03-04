@@ -25,7 +25,6 @@ export default function MonthlyDealsCarousel({ items = [] }: { items?: Item[] })
     return out.slice(0, 3); // 15 products = 3 pages
   }, [items]);
 
-  if (!items?.length) return null;
 
   const [index, setIndex] = useState(0);
 
