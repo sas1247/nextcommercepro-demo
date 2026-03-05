@@ -67,11 +67,95 @@ async function getCollectionTwo(): Promise<Item[]> {
   });
 }
 
-const BUY_LINKS = {
-  gumroad: "https://nextcommerce.itch.io/nexnextcommerce-pro",
-  lemon: "https://nextcommerce.lemonsqueezy.com/checkout/buy/e86f8528-20fb-4c86-b5a7-2f5cbdc1b87b", 
-  itch: "https://nextcommerce.itch.io/nexnextcommerce-pro",
-};
+function BuyCard() {
+  const gumroad = "https://nextcommerce.gumroad.com/l/nextcommercepro";
+  const lemon =
+    "https://nextcommerce.lemonsqueezy.com/checkout/buy/e86f8528-20fb-4c86-b5a7-2f5cbdc1b87b";
+  const itch = "https://nextcommerce.itch.io/nexnextcommerce-pro";
+
+  return (
+    <section className="px-4">
+      <div className="mx-auto max-w-6xl">
+        <div className="relative rounded-2xl border bg-white shadow-sm">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500" />
+
+          <div className="flex flex-col gap-4 p-5 sm:p-6 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+                <span className="inline-block size-2 rounded-full bg-emerald-500" />
+                Launch week price
+              </div>
+
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <div className="text-base font-semibold text-gray-900">Price:</div>
+
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm text-gray-500 line-through">$79</span>
+                  <span className="text-2xl font-bold tracking-tight text-gray-900">$59</span>
+                </div>
+
+                <span className="text-sm text-gray-500">one-time purchase</span>
+              </div>
+
+              <p className="text-sm text-gray-600">
+                Choose your preferred marketplace to purchase the template.
+              </p>
+
+              <p className="text-xs text-gray-500">
+                Includes a full-featured Admin Dashboard for managing products, orders, customers, coupons and email marketing. Full source code included in the purchase.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 md:justify-end">
+              <details className="group relative">
+                <summary className="flex cursor-pointer list-none items-center justify-center gap-2 rounded-xl border bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800">
+                  Buy
+                  <span className="transition group-open:rotate-180">▾</span>
+                </summary>
+
+                <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border bg-white shadow-lg">
+                  <a
+                    href={gumroad}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50"
+                  >
+                    Gumroad
+                  </a>
+                  <a
+                    href={lemon}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50"
+                  >
+                    Lemon Squeezy
+                  </a>
+                  <a
+                    href={itch}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50"
+                  >
+                    itch.io
+                  </a>
+                </div>
+              </details>
+
+              <a
+                href="https://nextcommercepro-demo-a3ch5zkpk-sas1247s-projects.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border px-4 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+              >
+                Live demo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default async function HomePage() {
   const [monthly, best, collectionOne, collectionTwo] = await Promise.all([
@@ -82,66 +166,12 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="space-y-2">
-      {/* TOP BAR (Demo -> Buy dropdown) */}
-      <div className="px-3 sm:px-4">
-        <div className="rounded-2xl border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
-          <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <div className="text-sm font-semibold">NextCommerce Pro</div>
-              <div className="text-xs text-muted-foreground">
-                Full-stack Next.js e-commerce template • Storefront + Admin • Stripe • Coupons
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Buy dropdown */}
-              <details className="group relative">
-                <summary className="list-none cursor-pointer select-none rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 active:scale-[0.99]">
-                  Buy Template ▾
-                </summary>
-
-                <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border bg-background shadow-lg">
-                  <a
-                    href={BUY_LINKS.gumroad}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-3 text-sm hover:bg-muted"
-                  >
-                    Gumroad
-                  </a>
-                  <a
-                    href={BUY_LINKS.lemon}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-3 text-sm hover:bg-muted"
-                  >
-                    Lemon Squeezy
-                  </a>
-                  <a
-                    href={BUY_LINKS.itch}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-3 text-sm hover:bg-muted"
-                  >
-                    itch.io
-                  </a>
-                </div>
-              </details>
-
-              {/* Optional: Admin demo link (kept simple) */}
-              <a
-                href="/admin"
-                className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-muted active:scale-[0.99]"
-              >
-                Admin Demo
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       <HeroCarousel />
+
+      {/* ✅ Nice-looking centered pricing + Buy dropdown */}
+      <BuyCard />
+
       <MonthlyDealsCarousel items={monthly} />
       <BestSellersCarousel items={best} />
       <CollectionsGrid />
